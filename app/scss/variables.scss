@@ -1,0 +1,79 @@
+// Минимальная ширина страницы
+$minWidth: 320;
+// Ширина полотна (макета)
+$maxWidth: 1920;
+// Ширина ограничивающего контейнера (0 = нет ограничения)
+$maxWidthContainer: 1170;
+
+// Общий отступ у контейнера
+// (30 = по 15px слева и справа, 0 = нет отступа)
+$containerPadding: 30;
+
+// Тип адаптива:
+// 1 = отзывчивость (у контейнера нет брейкпоинтов),
+// 2 = по брейк-поинтам (контейнер меняет свою ширину по брейк-поинтам)
+$responsiveType: 1;
+
+// Ширина страбатывания первого брейкпоинта
+$containerWidth: $maxWidthContainer + $containerPadding;
+// Брейкпоинты
+$pc: $containerWidth + px;
+$xs: 479.98px;
+$sm: 576px;
+$md: 767.98px;
+$lg: 991.98px;
+$xl: 1023px;
+$xxl: 1200px;
+$xxxl: 1400px;
+
+// (i) Стили будут применяться ко всем классам содержащим *__container. Например header__container, footer__container и т.д.
+@if ($responsiveType == 1) {
+	// Отзывчивая
+	[class*="__container"] {
+		@if ($maxWidthContainer > 0) {
+			max-width: $maxWidthContainer + px;
+			margin: 0 auto;
+		}
+		@if ($containerPadding > 0) {
+			padding: 0 math.div($containerPadding, 2) + px;
+		}
+	}
+} @else {
+	// По брейк-поинтам
+	[class*="__container"] {
+		margin: 0 auto;
+		@if ($maxWidthContainer > 0) {
+			max-width: $maxWidthContainer + px;
+		}
+		@if ($containerPadding > 0) {
+			padding: 0 math.div($containerPadding, 2) + px;
+		}
+		@media (max-width: $xxl) {
+			max-width: 980px;
+		}
+		@media (max-width: $lg) {
+			max-width: 750px;
+		}
+		@media (max-width: $md) {
+			max-width: 620px;
+		}
+		@media (max-width: $sm) {
+			max-width: 100%;
+		}
+	}
+}
+
+// размеры шрифтов
+$fontSize_big: 32px;
+$fontSize_main: 16px;
+$fontSize_small: 14px;
+
+// Основные Цвета
+$mainColor: #000;
+$mainColor_bg: #ffffff;
+$blackColor: #000;
+$whiteColor: #ffffff;
+
+// Шрифты
+$fontWeight: 400;
+$fontFamily: "Montserrat", sans-serif;

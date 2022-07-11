@@ -1,0 +1,119 @@
+// Сброс стилей списков
+@mixin reset-list {
+	padding: 0;
+	margin: 0;
+	list-style-type: none;
+}
+// Сброс стилей ссылки
+@mixin reset-link {
+	text-decoration: none;
+	color: inherit;
+	outline: none;
+}
+// Сброс стилей кнопки
+@mixin reset-button {
+	border: none;
+	background-color: transparent;
+	outline: 0px solid transparent;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	font-size: inherit;
+	color: inherit;
+	font: inherit;
+	border-radius: 0;
+}
+// Сброс стилей полей
+@mixin reset-input {
+	border: none;
+	background-color: transparent;
+	outline: none;
+	padding: 0;
+	margin: 0;
+	cursor: inherit;
+	color: inherit;
+	font-size: inherit;
+	font-family: inherit;
+	border-radius: 0;
+	appearance: none;
+	&::placeholder {
+		opacity: 1;
+		color: inherit;
+	}
+	&:focus {
+		&::placeholder {
+			opacity: 0;
+		}
+	}
+}
+// Сброс textarea
+@mixin reset-textarea {
+	@include reset-input;
+	resize: none;
+}
+// Сброс стилей select
+@mixin reset-select {
+	font-family: inherit;
+	font-size: inherit;
+	color: inherit;
+	background-color: transparent;
+	border: none;
+	outline: none;
+	appearance: none;
+	cursor: pointer;
+	&::-ms-expand {
+		display: none;
+	}
+	& > option {
+		padding: 0;
+	}
+}
+
+// Медиа выражение
+@mixin media($width) {
+	@media screen and (max-width: $width) {
+		@content;
+	}
+}
+// Контрольная точка
+// Применение: @include bp(xs/sm/md/lg/xl/xxl/) {}
+@mixin bp($name) {
+	$width: map-get($breakpoints, $name);
+	@include media($width) {
+		@content;
+	}
+}
+
+// 12-ТИ КОЛОНОЧНАЯ СЕТКА
+// Применение: @include col(6)
+$grid-columns: 12 !default;
+@mixin col($size: false, $columns: $grid-columns) {
+	@if $size {
+		flex: 0 0 auto;
+		width: percentage($size / $columns);
+	} @else {
+		flex: 1 1 0;
+		max-width: 100%;
+	}
+}
+
+// АДАПТИВНОЕ СВОЙСТВО
+@mixin adaptiv-value($property, $startSize, $minSize, $type) {
+	$addSize: $startSize - $minSize;
+	@if $type==1 {
+		//Только если меньше контейнера
+		#{$property}: $startSize + px;
+		@media screen and (max-width: #{$maxWidthContainer + px}) {
+			#{$property}: calc(#{$minSize + px} + #{$addSize} * ((100vw - 320px) / #{$maxWidthContainer - 320}));
+		}
+	} @else if $type==2 {
+		//Только если больше контейнера
+		#{$property}: $startSize + px;
+		@media screen and (min-width: #{$maxWidthContainer + px}) {
+			#{$property}: calc(#{$minSize + px} + #{$addSize} * ((100vw - 320px) / #{$maxWidth - 320}));
+		}
+	} @else {
+		//Всегда
+		#{$property}: calc(#{$minSize + px} + #{$addSize} * ((100vw - 320px) / #{$maxWidth - 320}));
+	}
+}

@@ -1,0 +1,93 @@
+* {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+*,
+*:before,
+*:after {
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+:focus,
+:active {
+	outline: none;
+}
+html,
+body {
+	height: 100%;
+	min-width: $minWidth + px;
+}
+body {
+	font-size: $fontSize_main;
+	color: $mainColor;
+	font-weight: $fontWeight;
+	font-family: $fontFamily;
+	background-color: $mainColor_bg;
+	line-height: 1;
+	-ms-text-size-adjust: 100%;
+	-moz-text-size-adjust: 100%;
+	-webkit-text-size-adjust: 100%;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	scroll-behavior: smooth;
+}
+aside,
+nav,
+footer,
+header,
+section,
+main {
+	display: block;
+}
+button {
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	-moz-tap-highlight-color: rgba(0, 0, 0, 0);
+	-o-tap-highlight-color: rgba(0, 0, 0, 0);
+	-ms-tap-highlight-color: rgba(0, 0, 0, 0);
+	-tap-highlight-color: rgba(0, 0, 0, 0);
+	&:focus,
+	&:active {
+		outline: 0px solid transparent;
+	}
+	&::-moz-focus-inner {
+		padding: 0;
+		border: 0;
+	}
+}
+input:focus {
+	outline: 0px solid transparent;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+}
+input::-ms-clear {
+	display: none;
+}
+input.error,
+textarea.error {
+	border-color: red;
+}
+a {
+	color: inherit;
+}
+ul li {
+	list-style: none;
+}
+img {
+	border: none;
+	max-width: 100%;
+	vertical-align: top;
+	object-fit: cover;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-weight: inherit;
+	font-size: inherit;
+}
