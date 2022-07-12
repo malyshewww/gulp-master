@@ -43,5 +43,8 @@
     "vinyl-named": "^1.1.0",
     "webpack": "^5.69.0",
     "webpack-stream": "^7.0.0"
+  },
+  "dependencies": {
+    "gulp-sourcemaps": "^3.0.0"
   }
 }

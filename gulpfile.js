@@ -44,6 +44,7 @@ import svgSprite from "gulp-svg-sprite"; // SVG sprite
 import newer from "gulp-newer"; // Проверка обновления изображений
 import plumber from "gulp-plumber"; // Обработка ошибок
 import notify from "gulp-notify"; // Сообщения (подсказки)
+import sourcemaps from "gulp-sourcemaps"; // Карта файлов
 import ifPlugin from "gulp-if"; // Условное ветвление
 
 const buildFolder = `./dist`; // Также можно использовать rootFolder
@@ -73,13 +74,14 @@ function browsersync() {
 }
 
 function buildPug() {
-  return src([`${srcFolder}/pug/*.pug`, `!${srcFolder}/pug/layout.pug`, `!${srcFolder}/pug/variables.pug`])
+  return src([`${srcFolder}/pug/*.pug`, `!${srcFolder}/pug/layout.pug`, `!${srcFolder}/pug/variables.pug`], { since: pkg.lastRun(buildPug) })
     .pipe(plumber(
       notify.onError({
         title: "PUG",
         message: "Error: <%= error.message %>"
       }))
     )
+    .pipe(newer(`${buildFolder}`))
     .pipe(pug({
       // Cжатие HTML файла
       pretty: true,
@@ -109,7 +111,7 @@ function buildPug() {
 }
 
 function styles() {
-  return src([`${srcFolder}/scss/**/main.scss`])
+  return src([`${srcFolder}/scss/**/main.scss`], { sourcemaps: true })
     .pipe(plumber(
       notify.onError({
         title: "SCSS",
@@ -135,10 +137,7 @@ function styles() {
     .pipe(postCss([
       cssnano({ preset: ['default', { discardComments: { removeAll: true } }] })
     ]))
-    // .pipe(concat('main.min.css'))
-    .pipe(rename({
-      extname: ".min.css"
-    }))
+    .pipe(concat('main.min.css'))
     .pipe(dest(`${buildFolder}/styles/`))
     // Раскомментировать, если нужно добавлять в папку assets/template
     // .pipe(dest(`${pathModxTemplate}styles/`))
@@ -205,7 +204,7 @@ function images() {
         message: "Error: <%= error.message %>"
       })))
     .pipe(newer(`${buildFolder}/images/**/*`))
-    .pipe(changed(`${buildFolder}/images/`))
+    // .pipe(changed(`${buildFolder}/images/`))
     .pipe(imagemin([
       gifsicle({ interlaced: true }),
       mozjpeg({
@@ -217,7 +216,7 @@ function images() {
         plugins: [
           {
             name: 'removeViewBox',
-            active: true
+            active: false
           },
           {
             name: 'cleanupIDs',
