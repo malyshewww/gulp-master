@@ -68,13 +68,13 @@ function browsersync() {
     ghostMode: false,
 
     // Для подключения к проекту на OpenServer
-    // proxy: "gorkiy-live.local",
+    // proxy: "project.local",
     // open: "external",
   })
 }
 
 function buildPug() {
-  return src([`${srcFolder}/pug/*.pug`, `!${srcFolder}/pug/layout.pug`, `!${srcFolder}/pug/variables.pug`], { since: pkg.lastRun(buildPug) })
+  return src([`${srcFolder}/pug/*.pug`, `!${srcFolder}/pug/layout.pug`, `!${srcFolder}/pug/variables.pug`])
     .pipe(plumber(
       notify.onError({
         title: "PUG",
