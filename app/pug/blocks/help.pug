@@ -1,0 +1,70 @@
+//- Семантика
+//- header, main, footer, section, article, aside, nav, h1-h6, ul, ol, dl, address
+//- video, audio, button, p, a, blockquote(cite, time)
+//- table(thead - tr - th, tbody - tr - td)
+//- form(input, textarea, button)
+
+//- article - Оформление блока статей, блога
+//- nav - навигация на сайте
+//- blockquote - блок с цитатами, отзывами
+//- dl(dt, dd)- список описаний
+
+- const inlineStyles = {"color": "red", "text-transform": "uppercase"};
+	p(style=inlineStyles) Красный текст в верхнем регистре
+
+- const manyClasses = ["class", "class1", "class2"];
+	div(class=manyClasses) Блок с несколькими классами
+
+- const myAttributes = {"src": "/", "alt": "This is photo"}
+	img&attributes(myAttributes)
+
+	mixin img(path, alt)
+		- const imgAttributes = {"src": path, "alt": alt}
+		img&attributes(myAttributes) 
+
+	each n, i in [50, 2, 3, 4, 5]
+		p= n + " - " + i
+	
+- const grades = {"Web Dev": 100, "Software Design": 75};
+	for n, i in grades 
+		p= n + " - " + i
+	else 
+		strong No results
+
+- let user = {name: "Domenic", loggedin: false, lastLogin: 8}
+	if user.loggedin 
+		p 
+			| Welcome back,
+			strong #{user.name}
+	else if user.lastLogin < 10
+		p. 
+			Your last login was 
+			#[b #{user.lastLogin} minutes ago]
+		p 
+			a(href="/login") Log in Again 
+	else 
+		a(href="/login") Log in
+
+//- orderStatus => Pending || In_Transit || Completed
+- const orderStatus = 'Random'
+
+	case orderStatus
+		when 'Pending'
+			//- do stuff here
+			p Your order has been placed and will be sent shortly
+		when 'In_Transit'
+			p Your order is on the move - you should receive it soon!
+		when 'Completed'
+			p Your order has been completed
+		default 
+			p Sorry! We aren't sure what happened with your order...
+
+mixin comment(commentData)
+	.comment 
+		.comment__date= commentData.date 
+		.comment__author= commentData.author 
+		.comment__text= commentData.text
+- const c = {date: "04-02-2022", author: "Alex", text: "Some text"}
+- const b = {date: "04-03-2022", author: "John", text: "Some text 2"}
++comment(c)
++comment(b)

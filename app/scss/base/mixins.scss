@@ -49,7 +49,7 @@
 // Сброс textarea
 @mixin reset-textarea {
 	@include reset-input;
-	resize: none;
+	resize: vertical;
 }
 // Сброс стилей select
 @mixin reset-select {
@@ -68,7 +68,29 @@
 		padding: 0;
 	}
 }
-
+@mixin padd($padd...) {
+	padding: $padd;
+}
+@mixin transition($transition...) {
+	-moz-transition: $transition;
+	-o-transition: $transition;
+	-webkit-transition: $transition;
+	transition: $transition;
+}
+@mixin linkStates($default, $hover, $active) {
+	color: $default;
+	&:hover {
+		color: $hover;
+	}
+	&:active {
+		color: $active;
+	}
+}
+@mixin fontSize($font-size, $line-height: normal, $letter-spacing: normal) {
+	font-size: $font-size * 1px;
+	line-height: math.div($line-height, $font-size) * 100%;
+	letter-spacing: $letter-spacing * 1px;
+}
 // Медиа выражение
 @mixin media($width) {
 	@media screen and (max-width: $width) {
