@@ -1,0 +1,35 @@
+include ./config.pug
+include ./variables.pug
+
+doctype html
+html(lang="ru")
+	block variables
+	head 
+		block head
+			meta(charset="UTF-8")
+			meta(http-equiv="X-UA-Compatible", content="IE=edge")
+			meta(name='viewport', content='width=device-width, initial-scale=1')
+			//- meta(name='viewport', content='width=1320px, initial-scale=1')
+			meta(name="format-detection", content="telephone=no")
+			meta(name="description" content=description)
+			meta(property="og:url" content="https://")
+			meta(property="og:type" content="website")
+			meta(property="og:title" content=pageTitle)
+			meta(property="twitter:title" content=pageTitle)
+			meta(property="og:description" content=description)
+			meta(property="twitter:description" content="description")
+			title #{pageTitle} | site name
+			if googleFonts
+				link(href=`https://fonts.googleapis.com/css2?family=${googleFonts}&display=swap` rel="stylesheet")
+			block styles
+				link(href="styles/main.min.css" rel="stylesheet")
+			include ../components/favicons
+	body
+		div.wrapper#wrapper
+			include ../components/header
+			main.main
+				block content
+					include ../components/crumbs
+			include ../components/footer
+		block scripts
+			script(src="scripts/main.min.js" defer)
