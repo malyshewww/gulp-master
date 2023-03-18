@@ -37,7 +37,6 @@ import cssnano from 'cssnano'
 import autoprefixer from 'autoprefixer' // Добавление вендорных префиксов
 import imagemin, { gifsicle, mozjpeg, optipng, svgo } from 'gulp-imagemin'
 import changed from 'gulp-changed'
-import concat from 'gulp-concat'
 import del from 'del'
 import versionNumber from "gulp-version-number"; // Обновление версии css и js файлов
 import rename from 'gulp-rename'; // Переименование файла
@@ -47,11 +46,19 @@ import newer from "gulp-newer"; // Проверка обновления изо�
 import plumber from "gulp-plumber"; // Обработка ошибок
 import notify from "gulp-notify"; // Сообщения (подсказки)
 import sourcemaps from "gulp-sourcemaps"; // Карта файлов
-import ifPlugin from "gulp-if"; // Условное ветвление
+import zipPlugin from "gulp-zip";
+import vinylFTP from 'vinyl-ftp';
+import util from 'gulp-util';
 
-const buildFolder = `./dist`; // Также можно использовать rootFolder
+// Получаем имя папки проекта
+import * as nodePath from 'path';
+const rootFolder = nodePath.basename(nodePath.resolve());
+
+// Пути к папке с исходниками и папке с результатом
+const buildFolder = `./dist`;
 const srcFolder = `./app`;
 
+// Пути к папкам и файлам проекта
 const path = {
   build: {
     html: `${buildFolder}/`,
@@ -73,6 +80,18 @@ const path = {
     svgicons: `${srcFolder}/svgicons/*.svg`,
   },
   clean: buildFolder,
+  buildFolder: buildFolder,
+  rootFolder: rootFolder,
+  srcFolder: srcFolder,
+  ftp: `` // Путь к нужной папке на удаленном сервере. gulp добавит имя папки проекта автоматически
+}
+
+// Настройка FTP соединения
+const configFTP = {
+  host: "", // Адрес FTP сервера
+  user: "", // Имя пользователя
+  password: "", // Пароль
+  parallel: 5 // Кол-во одновременных потоков
 }
 
 // Раскомментировать, если нужна верстка под MODX
@@ -339,9 +358,39 @@ function startwatch() {
   //   del.sync(destFilePath)
   // })
 }
-
+function zip() {
+  del(`./${path.rootFolder}.zip`);
+  return src(`${path.buildFolder}/**/*.*`, {})
+    .pipe(plumber(
+      notify.onError({
+        title: "ZIP",
+        message: "Error: <%= error.message %>"
+      }))
+    )
+    .pipe(zipPlugin(`${path.rootFolder}.zip`))
+    .pipe(dest('./'));
+}
+function ftp() {
+  configFTP.log = util.log;
+  const ftpConnect = vinylFTP.create(configFTP);
+  return src(`${path.buildFolder}/**/*.*`, {})
+    .pipe(plumber(
+      notify.onError({
+        title: "FTP",
+        message: "Error: <%= error.message %>"
+      }))
+    )
+    .pipe(ftpConnect.dest(`/${path.ftp}/${path.rootFolder}`));
+}
 const build = series(cleandist, parallel(images, scripts, buildPug, styles, sprite, fonts, files))
 const watch = series(parallel(images, scripts, buildPug, styles, fonts, sprite, files), parallel(browsersync, startwatch))
 
-export { build, watch }
+const deployFTP = series(build, ftp);
+const deployZIP = series(build, zip);
+
+export { build, watch, zip, ftp }
+
+export { deployFTP }
+export { deployZIP }
+
 export default watch;
