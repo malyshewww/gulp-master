@@ -6,6 +6,8 @@
   - "./app/fonts/" - папка fonts файлов проекта
   - "./app/images/" - папка неоптимизированных изображений
   - "./app/scripts/" - папка скриптов
+  - "./app/files/" - папка для других файлов (например, текстовые, аудио, видео и др.)
+  - "./app/svgicons/" - папка с иконками для формирования svg спрайта
 */
 // Продакшен: "./dist/"
 /*	
@@ -50,6 +52,29 @@ import ifPlugin from "gulp-if"; // Условное ветвление
 const buildFolder = `./dist`; // Также можно использовать rootFolder
 const srcFolder = `./app`;
 
+const path = {
+  build: {
+    html: `${buildFolder}/`,
+    js: `${buildFolder}/scripts/`,
+    css: `${buildFolder}/styles/`,
+    images: `${buildFolder}/images/`,
+    fonts: `${buildFolder}/fonts/`,
+    files: `${buildFolder}/files/`
+  },
+  src: {
+    html: `${srcFolder}/*.html`,
+    pug: `${srcFolder}/pug/*.pug`,
+    js: `${srcFolder}/scripts/main.js`,
+    scss: `${srcFolder}/scss/**/main.scss`,
+    images: `${srcFolder}/images/**/*.{jpg,jpeg,png,gif,webp,ico}`,
+    svg: `${srcFolder}/images/**/*.svg`,
+    fonts: `${srcFolder}/fonts/*.*`,
+    files: `${srcFolder}/files/**/*.*`,
+    svgicons: `${srcFolder}/svgicons/*.svg`,
+  },
+  clean: buildFolder,
+}
+
 // Раскомментировать, если нужна верстка под MODX
 const pathCurrent = process.cwd();
 const pathModx = `${pathCurrent}.local/`;
@@ -72,9 +97,8 @@ function browsersync() {
     // open: "external",
   })
 }
-
 function buildPug() {
-  return src([`${srcFolder}/pug/*.pug`, `!${srcFolder}/pug/layout.pug`, `!${srcFolder}/pug/variables.pug`])
+  return src(path.src.pug)
     .pipe(plumber(
       notify.onError({
         title: "PUG",
@@ -109,9 +133,8 @@ function buildPug() {
     // .pipe(dest(pathModxTemplate))
     .pipe(browserSync.stream())
 }
-
 function styles() {
-  return src([`${srcFolder}/scss/**/main.scss`], { sourcemaps: true })
+  return src(path.src.scss)
     .pipe(plumber(
       notify.onError({
         title: "SCSS",
@@ -131,21 +154,20 @@ function styles() {
       }),
     ]))
     // Раскомментировать, если нужен неминифицированный файл стилей
-    .pipe(dest(`${buildFolder}/styles/`))
+    .pipe(dest(path.build.css))
     // Раскомментировать, если нужно добавлять в папку assets/template
     // .pipe(dest(`${pathModxTemplate}styles/`))
     .pipe(postCss([
       cssnano({ preset: ['default', { discardComments: { removeAll: true } }] })
     ]))
-    .pipe(concat('main.min.css'))
-    .pipe(dest(`${buildFolder}/styles/`))
+    .pipe(rename({ suffix: ".min" }))
+    .pipe(dest(path.build.css))
     // Раскомментировать, если нужно добавлять в папку assets/template
     // .pipe(dest(`${pathModxTemplate}styles/`))
     .pipe(browserSync.stream())
 }
-
 function scripts() {
-  return src([`${srcFolder}/scripts/*.js`])
+  return src(path.src.js)
     .pipe(plumber(
       notify.onError({
         title: "JS",
@@ -189,21 +211,19 @@ function scripts() {
     }, webpack)).on('error', (err) => {
       this.emit('end')
     })
-    // .pipe(concat('main.min.js'))
-    .pipe(dest(`${buildFolder}/scripts/`))
+    .pipe(dest(path.build.js))
     // Раскомментировать, если нужно добавлять в папку assets/template
     // .pipe(dest(`${pathModxTemplate}scripts/`))
     .pipe(browserSync.stream())
 }
-
 function images() {
-  return src(`${srcFolder}/images/**/*.{jpg,jpeg,png,gif,svg,webp,ico}`)
+  return src(path.src.images)
     .pipe(plumber(
       notify.onError({
         title: "IMAGES",
         message: "Error: <%= error.message %>"
       })))
-    .pipe(newer(`${buildFolder}/images/**/*`))
+    .pipe(newer(path.build.images))
     // .pipe(changed(`${buildFolder}/images/`))
     .pipe(imagemin([
       gifsicle({ interlaced: true }),
@@ -227,27 +247,38 @@ function images() {
     ], {
       verbose: true
     }))
-    .pipe(dest(`${buildFolder}/images/`))
+    .pipe(dest(path.build.images))
+    .pipe(src(path.src.svg))
+    .pipe(dest(path.build.images))
     // Раскомментировать, если нужно добавлять в папку assets/template
     // .pipe(dest(`${pathModxTemplate}images/`))
     .pipe(browserSync.stream())
 }
-
 function fonts() {
-  return src([`${srcFolder}/fonts/*.*`])
+  return src(path.src.fonts)
     .pipe(plumber(
       notify.onError({
         title: "FONTS",
         message: "Error: <%= error.message %>"
       })))
-    .pipe(dest(`${buildFolder}/fonts/`))
+    .pipe(dest(path.build.fonts))
     // Раскомментировать, если нужно добавлять в папку assets/template
     // .pipe(dest(`${pathModxTemplate}fonts/`))
     .pipe(browserSync.stream())
 }
-
+function files() {
+  return src(path.src.files)
+    .pipe(plumber(
+      notify.onError({
+        title: "FILES",
+        message: "Error: <%= error.message %>"
+      })))
+    .pipe(dest(path.build.files))
+  // Раскомментировать, если нужно добавлять в папку assets/template
+  // .pipe(dest(`${pathModxTemplate}fonts/`))
+}
 function sprite() {
-  return src([`${srcFolder}/svgicons/*.svg`])
+  return src(path.src.svgicons)
     .pipe(plumber(
       notify.onError({
         title: "SVG",
@@ -285,29 +316,32 @@ function sprite() {
         xmlDeclaration: false
       }
     }))
-    .pipe(dest(`${buildFolder}/images/`))
+    .pipe(dest(path.build.images))
     // Раскомментировать, если нужно добавлять в папку assets/template
     // .pipe(dest(`${pathModxTemplate}images/`))
     .pipe(browserSync.stream())
   // .pipe(dest(`${srcFolder}/images/`))
 }
-
 async function cleandist() {
   del([`${buildFolder}/**/*`], { force: true })
 }
-
 function startwatch() {
   gulpWatch([`${srcFolder}/pug/**/*.pug`], { usePolling: true }, buildPug)
   gulpWatch([`${srcFolder}/scss/**/*.scss`], { usePolling: true }, styles)
   gulpWatch([`${srcFolder}/scripts/**/*.js`], { usePolling: true }, scripts)
   gulpWatch([`${srcFolder}/images/**/*.{jpg,jpeg,png,svg,gif,ico,webp}`], { usePolling: true }, images)
   gulpWatch([`${srcFolder}/fonts/**/*`], { usePolling: true }, fonts)
+  gulpWatch([path.src.svgicons], { usePolling: true }, sprite)
   gulpWatch([`${buildFolder}/**/*.*`], { usePolling: true }).on('change', browserSync.reload)
+  // gulpWatch([`${srcFolder}/images/**/*.png`], { usePolling: true }).on('unlink', function (filePath) {
+  //   let filePathFromSrc = pkg.path.relative(pkg.path.resolve('app'), filePath)
+  //   let destFilePath = pkg.path.resolve('dist', filePathFromSrc)
+  //   del.sync(destFilePath)
+  // })
 }
 
-const build = series(cleandist, parallel(images, scripts, buildPug, styles, sprite, fonts))
-const watch = series(parallel(images, scripts, buildPug, styles, fonts, sprite), parallel(browsersync, startwatch))
-
+const build = series(cleandist, parallel(images, scripts, buildPug, styles, sprite, fonts, files))
+const watch = series(parallel(images, scripts, buildPug, styles, fonts, sprite, files), parallel(browsersync, startwatch))
 
 export { build, watch }
 export default watch;

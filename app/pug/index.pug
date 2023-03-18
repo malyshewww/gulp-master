@@ -1,9 +1,9 @@
-extends layout.pug
+extends includes/layout.pug
 
 block variables
-	- var pageTitle = "Главная"
+	- let pageTitle = "Главная";
+	- let description = "Описание для главной страницы";
 block content
 	div.main__container
 		//- include ./blocks/help.pug
-		p Далеко-далеко Далеко-далеко
-
+		h1= pageTitle
