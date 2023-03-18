@@ -73,13 +73,21 @@ const path = {
     pug: `${srcFolder}/pug/*.pug`,
     js: `${srcFolder}/scripts/main.js`,
     scss: `${srcFolder}/scss/**/main.scss`,
-    images: `${srcFolder}/images/**/*.{jpg,jpeg,png,gif,webp,ico}`,
+    images: `${srcFolder}/images/**/*.{jpg,jpeg,png,gif,webp,ico,json}`,
     svg: `${srcFolder}/images/**/*.svg`,
     fonts: `${srcFolder}/fonts/*.*`,
     files: `${srcFolder}/files/**/*.*`,
     svgicons: `${srcFolder}/svgicons/*.svg`,
   },
-  clean: buildFolder,
+  watch: {
+    pug: `${srcFolder}/pug/**/*.pug`,
+    scss: `${srcFolder}/scss/**/*.scss`,
+    js: `${srcFolder}/scripts/**/*.js`,
+    images: `${srcFolder}/images/**/*.{jpg,jpeg,png,svg,gif,ico,webp,json}`,
+    fonts: `${srcFolder}/fonts/**/*`,
+    svgicons: `${srcFolder}/svgicons/*.svg`,
+  },
+  clean: `${buildFolder}/`,
   buildFolder: buildFolder,
   rootFolder: rootFolder,
   srcFolder: srcFolder,
@@ -342,15 +350,15 @@ function sprite() {
   // .pipe(dest(`${srcFolder}/images/`))
 }
 async function cleandist() {
-  del([`${buildFolder}/**/*`], { force: true })
+  del([path.clean], { force: true })
 }
 function startwatch() {
-  gulpWatch([`${srcFolder}/pug/**/*.pug`], { usePolling: true }, buildPug)
-  gulpWatch([`${srcFolder}/scss/**/*.scss`], { usePolling: true }, styles)
-  gulpWatch([`${srcFolder}/scripts/**/*.js`], { usePolling: true }, scripts)
-  gulpWatch([`${srcFolder}/images/**/*.{jpg,jpeg,png,svg,gif,ico,webp}`], { usePolling: true }, images)
-  gulpWatch([`${srcFolder}/fonts/**/*`], { usePolling: true }, fonts)
-  gulpWatch([path.src.svgicons], { usePolling: true }, sprite)
+  gulpWatch([path.watch.pug], { usePolling: true }, buildPug)
+  gulpWatch([path.watch.scss], { usePolling: true }, styles)
+  gulpWatch([path.watch.js], { usePolling: true }, scripts)
+  gulpWatch([path.watch.images], { usePolling: true }, images)
+  gulpWatch([path.watch.fonts], { usePolling: true }, fonts)
+  gulpWatch([path.watch.svgicons], { usePolling: true }, sprite)
   gulpWatch([`${buildFolder}/**/*.*`], { usePolling: true }).on('change', browserSync.reload)
   // gulpWatch([`${srcFolder}/images/**/*.png`], { usePolling: true }).on('unlink', function (filePath) {
   //   let filePathFromSrc = pkg.path.relative(pkg.path.resolve('app'), filePath)
@@ -388,7 +396,7 @@ const watch = series(parallel(images, scripts, buildPug, styles, fonts, sprite, 
 const deployFTP = series(build, ftp);
 const deployZIP = series(build, zip);
 
-export { build, watch, zip, ftp }
+export { build, watch, zip, ftp, cleandist }
 
 export { deployFTP }
 export { deployZIP }
