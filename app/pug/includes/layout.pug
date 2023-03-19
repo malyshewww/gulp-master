@@ -1,9 +1,12 @@
-include ./config.pug
+block config
+	include ./config.pug
 include ./variables.pug
 
 doctype html
 html(lang="ru")
 	block variables
+	include mixins/menu
+	include mixins/svgsprite
 	head 
 		block head
 			meta(charset="UTF-8")
@@ -29,6 +32,7 @@ html(lang="ru")
 			include ../components/header
 			main.main
 				block content
+					+menu(menu)
 					include ../components/crumbs
 			include ../components/footer
 		block scripts

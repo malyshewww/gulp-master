@@ -1,8 +1,8 @@
 extends includes/layout.pug
 
-block variables
+append variables
 	- let pageTitle = "Главная";
-	- let description = "Описание для главной страницы";
+	- description += pageTitle;
 block content
 	div.main__container
 		//- include ./blocks/help.pug

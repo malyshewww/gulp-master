@@ -1,0 +1,12 @@
+mixin menu([...items])
+	ul.menu__list
+		each item, index in items
+			li.menu__item(class={active: item.title == pageTitle})
+				a.menu__link(href=item.link)= item.title
+				if item.submenu 
+					span.menu__arrow 
+					div.submenu
+						ul.submenu__list 
+							each submenuItem, submenuIndex in item.submenu 
+								li.submenu__item(class={active: submenuItem.title == pageTitle})
+									a.submenu__link(href=submenuItem.link)= submenuItem.title
