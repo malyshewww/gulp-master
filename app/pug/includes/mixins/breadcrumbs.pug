@@ -1,0 +1,8 @@
+mixin breadcrumbs(items, last)
+	div.breadcrumbs
+		ul.breadcrumbs__list
+			each item in items
+				li.breadcrumbs__item
+					a(href="/" title=item)= item
+			if last 
+				li.breadcrumbs__item.breadcrumbs__item--last= last

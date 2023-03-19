@@ -30,10 +30,9 @@ html(lang="ru")
 	body
 		div.wrapper#wrapper
 			include ../components/header
+			include ../components/crumbs
 			main.main
 				block content
-					+menu(menu)
-					include ../components/crumbs
 			include ../components/footer
 		block scripts
 			script(src="scripts/main.min.js" defer)

@@ -1,5 +1,9 @@
-div.container.crumbs
-		ul.crumbs__list
-			li
-				a(href="/") Главная
-			li #{pageTitle}
+if pageTitle != "Главная"
+	div.breadcrumbs
+		.container
+			nav.breadcrumbs__navigation
+				ul.breadcrumbs__list
+					li.breadcrumbs__item
+						a(href="/" class="breadcrumbs__link") Главная
+					li.breadcrumbs__item #{pageTitle}
+
