@@ -49,6 +49,7 @@ import sourcemaps from "gulp-sourcemaps"; // Карта файлов
 import zipPlugin from "gulp-zip";
 import vinylFTP from 'vinyl-ftp';
 import util from 'gulp-util';
+import formatHTML from 'gulp-format-html';
 
 // Получаем имя папки проекта
 import * as nodePath from 'path';
@@ -155,6 +156,7 @@ function buildPug() {
         }
       })
     )
+    .pipe(formatHTML())
     .pipe(dest(`${buildFolder}`))
     // Раскомментировать, если нужно добавлять в папку assets/template
     // .pipe(dest(pathModxTemplate))
