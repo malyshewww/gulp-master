@@ -37,7 +37,6 @@ import cssnano from 'cssnano'
 import autoprefixer from 'autoprefixer' // Добавление вендорных префиксов
 import imagemin, { gifsicle, mozjpeg, optipng, svgo } from 'gulp-imagemin'
 import changed from 'gulp-changed'
-import del from 'del'
 import versionNumber from "gulp-version-number"; // Обновление версии css и js файлов
 import rename from 'gulp-rename'; // Переименование файла
 import groupCssMediaQueries from 'gulp-group-css-media-queries'; // Групировка медиа запросов
@@ -45,11 +44,12 @@ import svgSprite from "gulp-svg-sprite"; // SVG sprite
 import newer from "gulp-newer"; // Проверка обновления изображений
 import plumber from "gulp-plumber"; // Обработка ошибок
 import notify from "gulp-notify"; // Сообщения (подсказки)
-import sourcemaps from "gulp-sourcemaps"; // Карта файлов
+import sourceMaps from "gulp-sourcemaps"; // Карта файлов
 import zipPlugin from "gulp-zip";
 import vinylFTP from 'vinyl-ftp';
 import util from 'gulp-util';
 import formatHTML from 'gulp-format-html';
+import clean from 'gulp-clean';
 
 // Получаем имя папки проекта
 import * as nodePath from 'path';
@@ -125,15 +125,20 @@ function browsersync() {
     // open: "external",
   })
 }
+const plumberNotify = (title) => {
+  return {
+    errorHandler: notify.onError({
+      title: title,
+      message: 'Error <%= error.message %>',
+      sound: false,
+    }),
+  };
+};
+
 function buildPug() {
   return src(path.src.pug)
-    .pipe(plumber(
-      notify.onError({
-        title: "PUG",
-        message: "Error: <%= error.message %>"
-      }))
-    )
-    .pipe(newer(`${buildFolder}`))
+    .pipe(plumber(plumberNotify("PUG")))
+    .pipe(changed(`${buildFolder}/`))
     .pipe(pug({
       // Cжатие HTML файла
       pretty: true,
@@ -164,11 +169,8 @@ function buildPug() {
 }
 function styles() {
   return src(path.src.scss)
-    .pipe(plumber(
-      notify.onError({
-        title: "SCSS",
-        message: "Error: <%= error.message %>"
-      })))
+    .pipe(plumber(plumberNotify("SCSS")))
+    .pipe(sourceMaps.init())
     .pipe(sassglob())
     .pipe(sass({
       'include css': true,
@@ -190,6 +192,7 @@ function styles() {
       cssnano({ preset: ['default', { discardComments: { removeAll: true } }] })
     ]))
     .pipe(rename({ suffix: ".min" }))
+    .pipe(sourceMaps.write())
     .pipe(dest(path.build.css))
     // Раскомментировать, если нужно добавлять в папку assets/template
     // .pipe(dest(`${pathModxTemplate}styles/`))
@@ -197,11 +200,7 @@ function styles() {
 }
 function scripts() {
   return src(path.src.js)
-    .pipe(plumber(
-      notify.onError({
-        title: "JS",
-        message: "Error: <%= error.message %>"
-      })))
+    .pipe(plumber(plumberNotify("JS")))
     .pipe(named())
     .pipe(webpackStream({
       mode: 'production',
@@ -229,10 +228,10 @@ function scripts() {
         minimizer: [
           new TerserPlugin({
             terserOptions: { format: { comments: false } },
-            extractComments: false
+            extractComments: false,
+            // include: /\.min\.js$/,
           })
         ],
-
       },
       output: {
         filename: '[name].min.js',
@@ -247,11 +246,7 @@ function scripts() {
 }
 function images() {
   return src(path.src.images)
-    .pipe(plumber(
-      notify.onError({
-        title: "IMAGES",
-        message: "Error: <%= error.message %>"
-      })))
+    .pipe(plumber(plumberNotify("IMAGES")))
     .pipe(newer(path.build.images))
     // .pipe(changed(`${buildFolder}/images/`))
     .pipe(imagemin([
@@ -285,11 +280,7 @@ function images() {
 }
 function fonts() {
   return src(path.src.fonts)
-    .pipe(plumber(
-      notify.onError({
-        title: "FONTS",
-        message: "Error: <%= error.message %>"
-      })))
+    .pipe(plumber(plumberNotify("FONTS")))
     .pipe(dest(path.build.fonts))
     // Раскомментировать, если нужно добавлять в папку assets/template
     // .pipe(dest(`${pathModxTemplate}fonts/`))
@@ -297,22 +288,14 @@ function fonts() {
 }
 function files() {
   return src(path.src.files)
-    .pipe(plumber(
-      notify.onError({
-        title: "FILES",
-        message: "Error: <%= error.message %>"
-      })))
+    .pipe(plumber(plumberNotify("FILES")))
     .pipe(dest(path.build.files))
   // Раскомментировать, если нужно добавлять в папку assets/template
   // .pipe(dest(`${pathModxTemplate}fonts/`))
 }
 function sprite() {
   return src(path.src.svgicons)
-    .pipe(plumber(
-      notify.onError({
-        title: "SVG",
-        message: "Error: <%= error.message %>"
-      })))
+    .pipe(plumber(plumberNotify("SPRITE")))
     .pipe(svgSprite({
       mode: {
         symbol: {
@@ -332,6 +315,13 @@ function sprite() {
                 { removeXMLNS: true },
                 { convertPathData: false },
                 { removeViewBox: false },
+                { cleanupIDs: false },
+                { removeComments: true },
+                { removeEmptyAttrs: true },
+                { removeEmptyText: true },
+                { collapseGroups: true },
+                { convertPathData: false },
+                { removeAttrs: { attrs: '(fill|stroke)' } }
               ]
             }
           }
@@ -352,8 +342,9 @@ function sprite() {
   // .pipe(dest(`${srcFolder}/images/`))
 }
 async function cleandist() {
-  del([path.clean], { force: true })
+  clean([path.clean], { force: true })
 }
+
 function startwatch() {
   gulpWatch([path.watch.pug], { usePolling: true }, buildPug)
   gulpWatch([path.watch.scss], { usePolling: true }, styles)
@@ -362,21 +353,11 @@ function startwatch() {
   gulpWatch([path.watch.fonts], { usePolling: true }, fonts)
   gulpWatch([path.watch.svgicons], { usePolling: true }, sprite)
   gulpWatch([`${buildFolder}/**/*.*`], { usePolling: true }).on('change', browserSync.reload)
-  // gulpWatch([`${srcFolder}/images/**/*.png`], { usePolling: true }).on('unlink', function (filePath) {
-  //   let filePathFromSrc = pkg.path.relative(pkg.path.resolve('app'), filePath)
-  //   let destFilePath = pkg.path.resolve('dist', filePathFromSrc)
-  //   del.sync(destFilePath)
-  // })
 }
 function zip() {
-  del(`./${path.rootFolder}.zip`);
+  clean(`./${path.rootFolder}.zip`);
   return src(`${path.buildFolder}/**/*.*`, {})
-    .pipe(plumber(
-      notify.onError({
-        title: "ZIP",
-        message: "Error: <%= error.message %>"
-      }))
-    )
+    .pipe(plumber(plumberNotify("ZIP")))
     .pipe(zipPlugin(`${path.rootFolder}.zip`))
     .pipe(dest('./'));
 }
@@ -384,14 +365,10 @@ function ftp() {
   configFTP.log = util.log;
   const ftpConnect = vinylFTP.create(configFTP);
   return src(`${path.buildFolder}/**/*.*`, {})
-    .pipe(plumber(
-      notify.onError({
-        title: "FTP",
-        message: "Error: <%= error.message %>"
-      }))
-    )
+    .pipe(plumber(plumberNotify("FTP")))
     .pipe(ftpConnect.dest(`/${path.ftp}/${path.rootFolder}`));
 }
+
 const build = series(cleandist, parallel(images, scripts, buildPug, styles, sprite, fonts, files))
 const watch = series(parallel(images, scripts, buildPug, styles, fonts, sprite, files), parallel(browsersync, startwatch))
 
