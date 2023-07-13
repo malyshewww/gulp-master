@@ -51,6 +51,10 @@ import util from 'gulp-util';
 import formatHTML from 'gulp-format-html';
 import clean from 'gulp-clean';
 
+import webp from 'gulp-webp';
+import webpHTML from 'gulp-webp-html';
+import webpCss from 'gulp-webpcss';
+
 // Получаем имя папки проекта
 import * as nodePath from 'path';
 const rootFolder = nodePath.basename(nodePath.resolve());
@@ -87,6 +91,7 @@ const path = {
     images: `${srcFolder}/images/**/*.{jpg,jpeg,png,svg,gif,ico,webp,json}`,
     fonts: `${srcFolder}/fonts/**/*`,
     svgicons: `${srcFolder}/svgicons/*.svg`,
+    files: `${srcFolder}/files/**/*.*`,
   },
   clean: `${buildFolder}/`,
   buildFolder: buildFolder,
@@ -161,6 +166,7 @@ function buildPug() {
         }
       })
     )
+    .pipe(webpHTML())
     .pipe(formatHTML())
     .pipe(dest(`${buildFolder}`))
     // Раскомментировать, если нужно добавлять в папку assets/template
@@ -170,13 +176,17 @@ function buildPug() {
 function styles() {
   return src(path.src.scss)
     .pipe(plumber(plumberNotify("SCSS")))
-    .pipe(sourceMaps.init())
     .pipe(sassglob())
     .pipe(sass({
       'include css': true,
       outputStyle: 'expanded'
     }))
     .pipe(groupCssMediaQueries())
+    .pipe(
+      webpCss({
+        webpClass: ".webp",
+        noWebpClass: ".no-webp"
+      }))
     .pipe(postCss([
       autoprefixer({
         grid: true,
@@ -192,7 +202,6 @@ function styles() {
       cssnano({ preset: ['default', { discardComments: { removeAll: true } }] })
     ]))
     .pipe(rename({ suffix: ".min" }))
-    .pipe(sourceMaps.write())
     .pipe(dest(path.build.css))
     // Раскомментировать, если нужно добавлять в папку assets/template
     // .pipe(dest(`${pathModxTemplate}styles/`))
@@ -249,6 +258,11 @@ function images() {
     .pipe(plumber(plumberNotify("IMAGES")))
     .pipe(newer(path.build.images))
     // .pipe(changed(`${buildFolder}/images/`))
+    .pipe(webp())
+    .pipe(dest(path.build.images))
+
+    .pipe(src(path.src.images))
+    .pipe(newer(path.build.images))
     .pipe(imagemin([
       gifsicle({ interlaced: true }),
       mozjpeg({
@@ -272,6 +286,7 @@ function images() {
       verbose: true
     }))
     .pipe(dest(path.build.images))
+
     .pipe(src(path.src.svg))
     .pipe(dest(path.build.images))
     // Раскомментировать, если нужно добавлять в папку assets/template
@@ -352,6 +367,7 @@ function startwatch() {
   gulpWatch([path.watch.images], { usePolling: true }, images)
   gulpWatch([path.watch.fonts], { usePolling: true }, fonts)
   gulpWatch([path.watch.svgicons], { usePolling: true }, sprite)
+  gulpWatch([path.watch.files], { usePolling: true }, files)
   gulpWatch([`${buildFolder}/**/*.*`], { usePolling: true }).on('change', browserSync.reload)
 }
 function zip() {
