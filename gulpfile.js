@@ -49,7 +49,7 @@ import zipPlugin from "gulp-zip";
 import vinylFTP from 'vinyl-ftp';
 import util from 'gulp-util';
 import formatHTML from 'gulp-format-html';
-import clean from 'gulp-clean';
+import { deleteAsync } from 'del';
 
 import webp from 'gulp-webp';
 import webpHTML from 'gulp-webp-html';
@@ -356,8 +356,8 @@ function sprite() {
     .pipe(browserSync.stream())
   // .pipe(dest(`${srcFolder}/images/`))
 }
-async function cleandist() {
-  clean([path.clean], { force: true })
+const cleandist = () => {
+  return deleteAsync([path.clean], { force: true })
 }
 
 function startwatch() {
@@ -371,7 +371,7 @@ function startwatch() {
   gulpWatch([`${buildFolder}/**/*.*`], { usePolling: true }).on('change', browserSync.reload)
 }
 function zip() {
-  clean(`./${path.rootFolder}.zip`);
+  deleteAsync(`./${path.rootFolder}.zip`);
   return src(`${path.buildFolder}/**/*.*`, {})
     .pipe(plumber(plumberNotify("ZIP")))
     .pipe(zipPlugin(`${path.rootFolder}.zip`))
