@@ -44,15 +44,14 @@ import svgSprite from "gulp-svg-sprite"; // SVG sprite
 import newer from "gulp-newer"; // Проверка обновления изображений
 import plumber from "gulp-plumber"; // Обработка ошибок
 import notify from "gulp-notify"; // Сообщения (подсказки)
-import sourceMaps from "gulp-sourcemaps"; // Карта файлов
-import zipPlugin from "gulp-zip";
-import vinylFTP from 'vinyl-ftp';
+import zipPlugin from "gulp-zip"; // Формирование zip архива
+import vinylFTP from 'vinyl-ftp'; // Подключение по ftp
 import util from 'gulp-util';
-import formatHTML from 'gulp-format-html';
+import formatHTML from 'gulp-format-html'; // Форматирование резалютирующего html кода
 import { deleteAsync } from 'del';
 
 import webp from 'gulp-webp';
-import webpHTML from 'gulp-webp-html';
+import webpHtmlNoSvg from 'gulp-webp-html-nosvg';
 import webpCss from 'gulp-webpcss';
 
 // Получаем имя папки проекта
@@ -166,7 +165,7 @@ function buildPug() {
         }
       })
     )
-    .pipe(webpHTML())
+    .pipe(webpHtmlNoSvg())
     .pipe(formatHTML())
     .pipe(dest(`${buildFolder}`))
     // Раскомментировать, если нужно добавлять в папку assets/template
