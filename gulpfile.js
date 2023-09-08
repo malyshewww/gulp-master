@@ -16,6 +16,7 @@
   - "./dist/styles/" - папка с минифицированными стилями
   - "./dist/scripts/" - папка минифицированных скриптов
   - "./dist/images/" - папка оптимизированных изображений
+  - "./dist/files/" - папка с другими файлами
 */
 
 import pkg from 'gulp'
@@ -54,6 +55,8 @@ import webp from 'gulp-webp';
 import webpHtmlNoSvg from 'gulp-webp-html-nosvg';
 import webpCss from 'gulp-webpcss';
 
+import ifPlugin from 'gulp-if';
+
 // Получаем имя папки проекта
 import * as nodePath from 'path';
 const rootFolder = nodePath.basename(nodePath.resolve());
@@ -61,6 +64,14 @@ const rootFolder = nodePath.basename(nodePath.resolve());
 // Пути к папке с исходниками и папке с результатом
 const buildFolder = `./dist`;
 const srcFolder = `./app`;
+
+global.app = {
+  isBuild: process.argv.includes('--build'),
+  isDev: !process.argv.includes('--build'),
+  plugins: {
+    if: ifPlugin,
+  }
+};
 
 // Пути к папкам и файлам проекта
 const path = {
@@ -150,23 +161,31 @@ function buildPug() {
       verbose: true
     }))
     .pipe(
-      versionNumber({
-        'value': '%DT%',
-        'append': {
-          'key': '_v',
-          'cover': 0,
-          'to': [
-            'css',
-            'js',
-          ]
-        },
-        'output': {
-          'file': 'version.json'
-        }
-      })
+      app.plugins.if(
+        app.isBuild,
+        versionNumber({
+          'value': '%DT%',
+          'append': {
+            'key': '_v',
+            'cover': 0,
+            'to': [
+              'css',
+              'js',
+            ]
+          },
+          'output': {
+            'file': 'version.json'
+          }
+        })
+      )
     )
-    .pipe(webpHtmlNoSvg())
-    .pipe(formatHTML())
+    .pipe(
+      app.plugins.if(app.isBuild, webpHtmlNoSvg())
+    )
+    .pipe(formatHTML({
+      indent_size: 4,
+      indent_with_tabs: true,
+    }))
     .pipe(dest(`${buildFolder}`))
     // Раскомментировать, если нужно добавлять в папку assets/template
     // .pipe(dest(pathModxTemplate))
@@ -181,11 +200,11 @@ function styles() {
       outputStyle: 'expanded'
     }))
     .pipe(groupCssMediaQueries())
-    .pipe(
-      webpCss({
-        webpClass: ".webp",
-        noWebpClass: ".no-webp"
-      }))
+    // .pipe(
+    //   webpCss({
+    //     webpClass: ".webp",
+    //     noWebpClass: ".no-webp"
+    //   }))
     .pipe(postCss([
       autoprefixer({
         grid: true,
@@ -195,8 +214,6 @@ function styles() {
     ]))
     // Раскомментировать, если нужен неминифицированный файл стилей
     .pipe(dest(path.build.css))
-    // Раскомментировать, если нужно добавлять в папку assets/template
-    // .pipe(dest(`${pathModxTemplate}styles/`))
     .pipe(postCss([
       cssnano({ preset: ['default', { discardComments: { removeAll: true } }] })
     ]))
@@ -211,7 +228,7 @@ function scripts() {
     .pipe(plumber(plumberNotify("JS")))
     .pipe(named())
     .pipe(webpackStream({
-      mode: 'production',
+      mode: app.isBuild ? 'production' : 'development',
       performance: { hints: false },
       // plugins: [
       //   new webpack.ProvidePlugin({ $: 'jquery', jQuery: 'jquery', 'window.jQuery': 'jquery' }), // jQuery (npm i jquery)
@@ -253,37 +270,40 @@ function scripts() {
     .pipe(browserSync.stream())
 }
 function images() {
-  return src(path.src.images)
+  return src([path.src.images, `!${path.srcFolder}/images/favicons/**/*.*`])
     .pipe(plumber(plumberNotify("IMAGES")))
-    .pipe(newer(path.build.images))
-    // .pipe(changed(`${buildFolder}/images/`))
+    // .pipe(newer(path.build.images))
+    .pipe(changed(path.build.images))
     .pipe(webp())
     .pipe(dest(path.build.images))
 
     .pipe(src(path.src.images))
-    .pipe(newer(path.build.images))
-    .pipe(imagemin([
-      gifsicle({ interlaced: true }),
-      mozjpeg({
-        progressive: true,
-        quality: 80
-      }),
-      optipng({ optimizationLevel: 3 }),
-      svgo({
-        plugins: [
-          {
-            name: 'removeViewBox',
-            active: false
-          },
-          {
-            name: 'cleanupIDs',
-            active: false
-          }
-        ]
-      })
-    ], {
-      verbose: true
-    }))
+    // .pipe(newer(path.build.images))
+    .pipe(changed(path.build.images))
+    .pipe(
+      app.plugins.if(app.isBuild,
+        imagemin([
+          gifsicle({ interlaced: true }),
+          mozjpeg({
+            progressive: true,
+            quality: 80
+          }),
+          optipng({ optimizationLevel: 3 }),
+          svgo({
+            plugins: [
+              {
+                name: 'removeViewBox',
+                active: false
+              },
+              {
+                name: 'cleanupIDs',
+                active: false
+              }
+            ]
+          })
+        ], {
+          verbose: true
+        })))
     .pipe(dest(path.build.images))
 
     .pipe(src(path.src.svg))
@@ -305,7 +325,7 @@ function files() {
     .pipe(plumber(plumberNotify("FILES")))
     .pipe(dest(path.build.files))
   // Раскомментировать, если нужно добавлять в папку assets/template
-  // .pipe(dest(`${pathModxTemplate}fonts/`))
+  // .pipe(dest(`${pathModxTemplate}files/`))
 }
 function sprite() {
   return src(path.src.svgicons)
@@ -353,7 +373,6 @@ function sprite() {
     // Раскомментировать, если нужно добавлять в папку assets/template
     // .pipe(dest(`${pathModxTemplate}images/`))
     .pipe(browserSync.stream())
-  // .pipe(dest(`${srcFolder}/images/`))
 }
 const cleandist = () => {
   return deleteAsync([path.clean], { force: true })
@@ -384,8 +403,10 @@ function ftp() {
     .pipe(ftpConnect.dest(`/${path.ftp}/${path.rootFolder}`));
 }
 
-const build = series(cleandist, parallel(images, scripts, buildPug, styles, sprite, fonts, files))
-const watch = series(parallel(images, scripts, buildPug, styles, fonts, sprite, files), parallel(browsersync, startwatch))
+const mainTasks = parallel(images, scripts, buildPug, styles, sprite, fonts, files);
+// Добавлена задача cleandist в watch
+const watch = series(cleandist, mainTasks, parallel(browsersync, startwatch))
+const build = series(cleandist, mainTasks)
 
 const deployFTP = series(build, ftp);
 const deployZIP = series(build, zip);

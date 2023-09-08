@@ -20,11 +20,10 @@ body {
 	min-width: $minWidth + px;
 }
 body {
-	font-size: $fontSize_main;
 	color: $mainColor;
+	font-size: $fontSize;
 	font-weight: $fontWeight;
 	font-family: $fontFamily;
-	background-color: $mainColor_bg;
 	line-height: 1;
 	-ms-text-size-adjust: 100%;
 	-moz-text-size-adjust: 100%;
@@ -66,13 +65,32 @@ input::-webkit-inner-spin-button {
 input::-ms-clear {
 	display: none;
 }
+button,
+input,
+textarea {
+	font-family: $fontFamily;
+	font-size: inherit;
+}
+button {
+	cursor: pointer;
+	color: inherit;
+	background-color: inherit;
+}
+a {
+	color: inherit;
+}
 input.error,
 textarea.error {
 	border-color: red;
 }
+a:link,
+a:visited {
+	text-decoration: none;
+}
 img {
 	border: none;
 	max-width: 100%;
+	max-height: 100%;
 	vertical-align: top;
 	object-fit: cover;
 }

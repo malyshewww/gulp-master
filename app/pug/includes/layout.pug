@@ -5,22 +5,21 @@ include ./variables.pug
 doctype html
 html(lang="ru")
 	block variables
-	include mixins/menu
-	include mixins/svgsprite
+	include mixins
 	head 
 		block head
 			meta(charset="UTF-8")
 			meta(http-equiv="X-UA-Compatible", content="IE=edge")
 			meta(name='viewport', content='width=device-width, initial-scale=1')
-			title #{pageTitle} | site name
+			title #{pageTitle}
 			//- meta(name='viewport', content='width=1320px, initial-scale=1')
 			meta(name="description" content=description)
-			meta(name="keywords" content="Ключевые слова")
+			meta(name="keywords" content="Перечень ключевых слов")
 			meta(property="og:type" content="website")
 			meta(property="og:url" content="https://example.com")
 			meta(property="og:title" content=pageTitle)
 			meta(property="og:description" content=description)
-			meta(property="og:image" content="./images/favicons/favicon-16x16.png")
+			//- meta(property="og:image" content="./images/favicons/favicon-16x16.png")
 			meta(property="twitter:title" content=pageTitle)
 			meta(property="twitter:description" content="description")
 			link(rel="canonical" href="https://example.com")
@@ -28,15 +27,17 @@ html(lang="ru")
 				link(href=`https://fonts.googleapis.com/css2?family=${googleFonts}&display=swap` rel="stylesheet")
 			block styles
 				link(href="styles/main.min.css" rel="stylesheet")
-			include ../components/favicons
+			//- include ../components/favicons
 			meta(name="apple-mobile-web-app-title" content="Название")
 			meta(name="apple-mobile-web-app-capable" content="yes")
-			meta(name="format-detection", content="telephone=no")
+			meta(name="format-detection" content="telephone=no")
 			meta(name="format-detection" content="address=no")
+			meta(name="format-detection" content="email=no")
+			meta(name="format-detection" content="date=no")
 	body
 		div.wrapper#wrapper
 			include ../components/header
-			include ../components/crumbs
+			include ../components/breadcrumbs
 			main.main
 				block content
 			include ../components/footer
