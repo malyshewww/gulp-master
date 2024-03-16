@@ -1,0 +1,113 @@
+// стили для content
+.content{
+	p{
+		line-height: 1.5;
+		margin-bottom: 15px;
+	}
+	h3{
+		
+	}
+
+	a{
+		text-decoration: underline;
+        text-underline-offset: 2px;
+        text-decoration-skip-ink: none;
+		color: black;
+		&:hover{
+			color: black;
+		}
+	}
+
+	ul{
+		padding-left: 28px;
+		li{
+			position: relative;
+		}
+		li::before{
+			content: '';
+			display: block;
+			width: 15px;
+			height: 1px;
+			background-color: var(--accent);
+			position: absolute;
+			left: -28px;
+			top: 10px;
+		}
+	}
+	ol{
+		counter-reset: item;
+		li{
+			position: relative;
+			display: flex;
+			gap: 20px;
+		}
+		li::before{
+			display: inline-block;
+			content: counters(item, "."); 
+			counter-increment: item;
+			font-size: 16px;
+			color: var(--accent);
+		}
+	}
+
+	q, blockquote{	
+		position: relative;
+		display: flex;
+		margin: 80px 0;
+		max-width: 1070px;
+		background-color: rgba(239, 239, 239, 0.4);
+		padding: 28px 20px 28px 36px;
+		color: #333;
+		&::before,&::after{
+			display: none;
+		}
+		&::before{
+			position: absolute;
+			top: 28px;
+			left: 20px;
+			height: calc(100% - 28px*2);
+			content: '';
+			display: block;
+			width: 1px;
+			background-color: blue;
+		}
+
+	}
+
+	table{
+		width: 100%;
+		border-spacing: 0;
+		border-collapse: collapse;
+		table-layout: fixed;
+		border: 1px solid #dfe1e3;
+		td, th{
+		   border: 1px solid #dfe1e3;
+		   padding: 14px 20px;
+		}
+		th{
+			text-align: left;
+			font-weight: 700;
+		}
+	}
+	& > *:last-child{
+		margin-bottom: 0;
+	}
+	& > *:first-child{
+		margin-top: 0;
+	}
+	img{
+		max-width: 100%;
+		height: auto;
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+	.align-right{
+		margin-left: 20px;
+	}
+	.align-left{
+		margin-right: 20px;
+	}
+}
+strong{
+	font-weight: 700;
+}

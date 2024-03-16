@@ -1,0 +1,32 @@
+// Стили кнопок
+button,
+input{
+	outline: none;
+	border-radius: 0;
+	padding: 0;
+	background-color: transparent;
+	border: 0;
+}
+button,
+input[type="submit"]{
+	cursor: pointer;
+}
+.btn{
+	height: 40px;
+	width: 180px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-family: var(--font);
+	font-weight: 600;
+	font-size: 12px;
+	color: #fff;
+	border: 0;
+	cursor: pointer;
+	border-radius: 3px;
+	background-color: lightgray;
+	transition: background-color 0.3s;
+	&:hover{
+		background-color: gray;
+	}
+}

@@ -1,0 +1,52 @@
+.pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  a {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+    background-color: lightgray;
+    transition: background-color 0.3s;
+    &:hover {
+      background-color: gray;
+    }
+    &.active {
+      background-color: black;
+    }
+  }
+  &__prev,
+  &__next {
+    padding-bottom: 2px;
+    &:after {
+      font-size: 22px;
+    }
+  }
+  &__prev {
+    &:after {
+      content: "\2039";
+    }
+  }
+  &__next {
+    &:after {
+      content: "\203A";
+    }
+  }
+  ul {
+    display: flex;
+    margin: 0 20px;
+    li {
+      margin-right: 10px;
+      &:last-child {
+        margin-right: 0;
+      }
+      a {
+        padding-top: 1px;
+      }
+    }
+  }
+}

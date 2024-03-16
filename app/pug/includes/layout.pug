@@ -26,18 +26,23 @@ html(lang="ru")
 			if googleFonts
 				link(href=`https://fonts.googleapis.com/css2?family=${googleFonts}&display=swap` rel="stylesheet")
 			block styles
+				link(href="styles/libs.min.css" rel="stylesheet")
 				link(href="styles/main.min.css" rel="stylesheet")
-			//- include ../components/favicons
+			meta(name="theme-color" content="#fff")
+			meta(name="msapplication-navbutton-color" content="#fff")
+			meta(name="apple-mobile-web-app-status-bar-style" content="#fff")
 			meta(name="apple-mobile-web-app-title" content="Название")
 			meta(name="apple-mobile-web-app-capable" content="yes")
 			meta(name="format-detection" content="telephone=no")
 			meta(name="format-detection" content="address=no")
 			meta(name="format-detection" content="email=no")
 			meta(name="format-detection" content="date=no")
+			link(rel="shortcut icon" href="images/favicons/favicon.svg" type="image/x-icon")
+			//- include ../components/favicons
 	body
 		div.wrapper#wrapper
 			include ../components/header
-			include ../components/breadcrumbs
+			//- include ../components/breadcrumbs
 			main.main
 				block content
 			include ../components/footer
