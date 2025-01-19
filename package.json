@@ -44,7 +44,6 @@
 		"gulp-webp": "^4.0.1",
 		"gulp-webp-html-nosvg": "^1.1.1",
 		"gulp-webp-retina-html": "^1.2.0",
-		"gulp-webpcss": "^1.1.1",
 		"gulp-zip": "^5.1.0",
 		"imagemin-pngquant": "^9.0.2",
 		"pngquant": "^4.2.0",
